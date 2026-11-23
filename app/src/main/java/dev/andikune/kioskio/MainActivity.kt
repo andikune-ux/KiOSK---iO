@@ -61,7 +61,7 @@ class MainActivity:ComponentActivity(){
    Button(onClick={},enabled=false,modifier=Modifier.fillMaxWidth()){Text("Uji motor — controller belum tersedia")}
    Card{Column(Modifier.padding(14.dp)){Text("Dashboard LAN",fontWeight=FontWeight.SemiBold);Text("Server otomatis aktif • Port 14039");Text("http://"+(applicationContext.getSystemService(WIFI_SERVICE) as WifiManager).connectionInfo.ipAddress.let{Formatter.formatIpAddress(it)}+":14039")}}
    Row(verticalAlignment=androidx.compose.ui.Alignment.CenterVertically){Text("Sembunyikan ikon launcher",Modifier.weight(1f));Switch(checked=hideIcon,onCheckedChange={hide->
-    hideIcon=hide;val c=ComponentName(this@MainActivity,LauncherAlias::class.java)
+    hideIcon=hide;val c=ComponentName(this@MainActivity,packageName+".LauncherAlias")
     packageManager.setComponentEnabledSetting(c,if(hide)PackageManager.COMPONENT_ENABLED_STATE_DISABLED else PackageManager.COMPONENT_ENABLED_STATE_ENABLED,PackageManager.DONT_KILL_APP)
    })}
   }
