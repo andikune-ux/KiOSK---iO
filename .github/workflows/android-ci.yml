@@ -50,8 +50,38 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
       - name: Build debug APK
         run: ./gradlew --no-daemon assembleDebug
-      - name: Build optimized release APK
+      - name: Prepare and verify permanent release key
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          EXPECTED_CERT_SHA256: "CA:DB:A6:47:E7:20:74:85:31:58:00:E8:53:2D:FC:DE:C8:33:30:3A:FB:60:11:E1:D6:EF:47:86:98:5A:DD:BB"
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$ANDROID_KEYSTORE_BASE64" || { echo "::error::Missing ANDROID_KEYSTORE_BASE64 secret"; exit 1; }
+          test -n "$ANDROID_KEY_ALIAS" || { echo "::error::Missing ANDROID_KEY_ALIAS secret"; exit 1; }
+          test -n "$ANDROID_KEYSTORE_PASSWORD" || { echo "::error::Missing ANDROID_KEYSTORE_PASSWORD secret"; exit 1; }
+          test -n "${{ secrets.ANDROID_KEY_PASSWORD }}" || { echo "::error::Missing ANDROID_KEY_PASSWORD secret"; exit 1; }
+          mkdir -p "$RUNNER_TEMP/kioskio-signing"
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/kioskio-signing/io-tools-release.jks"
+          test -s "$RUNNER_TEMP/kioskio-signing/io-tools-release.jks"
+          keytool -list -v -keystore "$RUNNER_TEMP/kioskio-signing/io-tools-release.jks" -alias "$ANDROID_KEY_ALIAS" -storepass "$ANDROID_KEYSTORE_PASSWORD" | grep -F "$EXPECTED_CERT_SHA256"
+      - name: Build signed optimized release APK
+        env:
+          KIOSKIO_KEYSTORE_PATH: ${{ runner.temp }}/kioskio-signing/io-tools-release.jks
+          KIOSKIO_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KIOSKIO_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KIOSKIO_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: ./gradlew --no-daemon assembleRelease
+      - name: Verify signed release APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="$(find app/build/outputs/apk/release -type f -name '*.apk' -print -quit)"
+          test -n "$APK"
+          APKSIGNER="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -n 1)"
+          "$APKSIGNER" verify --verbose "$APK"
       - name: Report APK sizes
         shell: bash
         run: |
@@ -67,10 +97,10 @@ jobs:
           path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
           retention-days: 14
-      - name: Upload optimized release APK (unsigned)
+      - name: Upload signed optimized release APK
         uses: actions/upload-artifact@v4
         with:
-          name: Kioskio-release-unsigned
+          name: Kioskio-release-signed
           path: app/build/outputs/apk/release/*.apk
           if-no-files-found: error
           retention-days: 14
