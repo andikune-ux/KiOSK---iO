@@ -3,6 +3,8 @@ import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import android.net.wifi.WifiManager
+import android.text.format.Formatter
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -45,7 +47,7 @@ class MainActivity:ComponentActivity(){
  override fun onDestroy(){executor.shutdown();super.onDestroy()}
  @Composable private fun KioskioScreen(crash:String?){
   var motor by remember{mutableStateOf("08")};var showCrash by remember{mutableStateOf(crash!=null)}
-  var hideIcon by remember{mutableStateOf(false)}
+  var hideIcon by remember{mutableStateOf(packageManager.getComponentEnabledSetting(ComponentName(this@MainActivity,LauncherAlias::class.java))==PackageManager.COMPONENT_ENABLED_STATE_DISABLED)}
   Column(Modifier.fillMaxSize().padding(18.dp),verticalArrangement=Arrangement.spacedBy(10.dp)){
    Text("Kioskio",fontSize=28.sp,fontWeight=FontWeight.Bold)
    Text("Panel pemeliharaan mesin • 45 motor",color=Color.Gray)
@@ -57,8 +59,8 @@ class MainActivity:ComponentActivity(){
    OutlinedTextField(value=motor,onValueChange={motor=it.filter(Char::isDigit).take(2)},label={Text("Nomor motor 01–45")},keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Number),singleLine=true,modifier=Modifier.fillMaxWidth())
    Text("Perintah rencana: 432° (360° + 20%).")
    Button(onClick={},enabled=false,modifier=Modifier.fillMaxWidth()){Text("Uji motor — controller belum tersedia")}
-   Card{Column(Modifier.padding(14.dp)){Text("Dashboard LAN",fontWeight=FontWeight.SemiBold);Text("Server otomatis aktif • Port 14039");Text("http://IP-TERMINAL:14039")}}
-   Row(verticalAlignment=androidx.compose.ui.Alignment.CenterVertically){Text("Sembunyikan ikon launcher",Modifier.weight(1f));Switch(checked=hideIcon,onCheckedChange{hide->
+   Card{Column(Modifier.padding(14.dp)){Text("Dashboard LAN",fontWeight=FontWeight.SemiBold);Text("Server otomatis aktif • Port 14039");Text("http://"+(applicationContext.getSystemService(WIFI_SERVICE) as WifiManager).connectionInfo.ipAddress.let{Formatter.formatIpAddress(it)}+":14039")}}
+   Row(verticalAlignment=androidx.compose.ui.Alignment.CenterVertically){Text("Sembunyikan ikon launcher",Modifier.weight(1f));Switch(checked=hideIcon,onCheckedChange={hide->
     hideIcon=hide;val c=ComponentName(this@MainActivity,LauncherAlias::class.java)
     packageManager.setComponentEnabledSetting(c,if(hide)PackageManager.COMPONENT_ENABLED_STATE_DISABLED else PackageManager.COMPONENT_ENABLED_STATE_ENABLED,PackageManager.DONT_KILL_APP)
    })}
