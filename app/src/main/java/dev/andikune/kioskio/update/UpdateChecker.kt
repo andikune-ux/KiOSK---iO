@@ -29,7 +29,9 @@ class UpdateChecker(private val context:Context){
     val a=assets.getJSONObject(i)
     if(a.optString("name").endsWith(".apk",true)){
      val digest=a.optString("digest").removePrefix("sha256:").takeIf{it.length==64}
-     return ReleaseUpdate(tag,release.optString("body").take(10000),a.optString("browser_download_url"),digest)
+     val assetUrl=a.optString("browser_download_url")
+     if(!assetUrl.startsWith("https://github.com/andikune-ux/KiOSK---iO/releases/download/"))return null
+     return ReleaseUpdate(tag,release.optString("body").take(10000),assetUrl,digest)
     }
    }
    return null
