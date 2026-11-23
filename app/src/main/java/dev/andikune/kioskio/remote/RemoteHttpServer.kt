@@ -35,7 +35,7 @@ class RemoteHttpServer(private val port:Int=14039,private val statusProvider:()-
    out.write(bytes);out.flush()
   }
  }
- fun stop(){running.set(false);runCatching{socket?.close()}}
+ fun stop(){running.set(false);runCatching{socket?.close()};executor.shutdownNow()}
  companion object {
   private const val PAGE="""<!doctype html><html lang="id"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Kioskio</title><style>body{font:16px system-ui;background:#f3f5f8;color:#17202a;padding:24px}.card{background:white;border-radius:18px;padding:18px;margin:12px 0}small{color:#667085}</style><h1>Kioskio</h1><small>Dashboard pemeliharaan lokal</small><section class="card"><b>Status controller</b><p id="s">Memuat…</p></section><section class="card">Motor 01–45<p>Kontrol fisik terkunci sampai controller diverifikasi.</p></section><script>fetch('/api/status').then(r=>r.json()).then(x=>s.textContent=x.controller).catch(()=>s.textContent='Offline')</script></html>"""
  }
