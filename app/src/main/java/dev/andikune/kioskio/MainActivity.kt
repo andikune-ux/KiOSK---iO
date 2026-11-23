@@ -35,7 +35,7 @@ class MainActivity:ComponentActivity(){
   executor.execute{runCatching{UpdateChecker(this).check()}.getOrNull()?.let{runOnUiThread{showUpdate(it)}}}
  }
  private fun showUpdate(update:ReleaseUpdate){
-  androidx.appcompat.app.AlertDialog.Builder(this).setTitle("Pembaruan Kioskio ${update.tag}")
+  android.app.AlertDialog.Builder(this).setTitle("Pembaruan Kioskio ${update.tag}")
    .setMessage(update.notes.ifBlank{"Versi baru tersedia."}.take(3000))
    .setNeutralButton("Skip"){_,_->UpdateChecker(this).skip(update.tag)}
    .setNegativeButton("Nanti",null)
