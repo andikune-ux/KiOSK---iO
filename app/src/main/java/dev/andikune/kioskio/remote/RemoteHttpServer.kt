@@ -75,10 +75,6 @@ h1{font-size:27px;margin:0 0 4px} .sub{color:#667085;font-size:14px;margin:0 0 2
 .field{display:flex;gap:9px;margin:10px 0 14px}
 input{min-width:0;flex:1;border:1px solid #cfd6e1;border-radius:12px;padding:13px 14px;font-size:18px;font-weight:650;background:#fff;color:#182230}
 button{font:inherit;cursor:pointer}
-.confirm{border:0;border-radius:12px;background:#172b4d;color:white;padding:0 18px;font-weight:650}
-.grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
-.motor{min-height:45px;border:1px solid #d9dee7;background:#fff;border-radius:11px;font-weight:650;color:#344054}
-.motor.selected{background:#e8f0ff;border:2px solid #3975d7;color:#174ea6}
 .test{width:100%;padding:13px;border:0;border-radius:12px;background:#aab2bf;color:#fff;font-weight:700;margin-top:12px}
 .notice{background:#fff7e6;border:1px solid #f5dfad;color:#79530a;padding:12px;border-radius:12px;font-size:13px;line-height:1.5}
 
@@ -88,12 +84,10 @@ button{font:inherit;cursor:pointer}
 <h1>Kioskio</h1><p class="sub">Remote maintenance · jaringan Wi-Fi lokal</p>
 <section class="card"><span class="label">Status controller</span><p class="status" id="controller">Memuat status…</p><p class="muted" id="serverState">Memeriksa koneksi…</p></section>
 <section class="card">
-<span class="label">Pilih motor (01–45)</span>
+<span class="label">Nomor motor (01–45)</span>
 <div class="field">
-<input id="motorInput" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" autocomplete="off" placeholder="Masukkan 01–45" aria-label="Nomor motor 01 sampai 45">
-<button class="confirm" id="selectBtn" type="button">Pilih</button>
+<input id="motorInput" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" autocomplete="off" placeholder="Masukkan nomor motor" aria-label="Nomor motor 01 sampai 45">
 </div>
-<div class="grid" id="motorGrid" aria-label="Daftar motor"></div>
 <p class="muted" id="selection">Masukkan nomor motor 01 sampai 45.</p>
 <div class="notice">Kontrol fisik masih terkunci sampai papan pengendali dan protokol komunikasinya diverifikasi. Pemilihan nomor di halaman ini belum memutar motor.</div>
 <button class="test" type="button" disabled>Uji motor — belum tersedia</button>
@@ -101,22 +95,27 @@ button{font:inherit;cursor:pointer}
 <script>
 (function(){
  const input=document.getElementById('motorInput');
- const grid=document.getElementById('motorGrid');
  const selection=document.getElementById('selection');
- let selected=0;
- function selectMotor(n){
-  if(!Number.isInteger(n)||n<1||n>45){selection.textContent='Masukkan nomor motor 01 sampai 45.';return;}
-  selected=n;input.value=String(n).padStart(2,'0');
-  selection.textContent='Motor terpilih: '+input.value;
-  grid.querySelectorAll('button').forEach((b,i)=>b.classList.toggle('selected',i+1===n));
+ function normalize(){
+  const raw=input.value.replace(/[^0-9]/g,'').slice(0,2);
+  input.value=raw;
+  if(raw.length===0){selection.textContent='Masukkan nomor motor 01 sampai 45.';return;}
+  const n=Number(raw);
+  if(!Number.isInteger(n)||n<1||n>45){selection.textContent='Nomor tidak valid. Gunakan 1 sampai 45.';return;}
+  input.value=String(n).padStart(2,'0');
+  selection.textContent='Motor dipilih: '+input.value;
  }
- for(let n=1;n<=45;n++){
-  const b=document.createElement('button');b.type='button';b.className='motor';b.textContent=String(n).padStart(2,'0');
-  b.addEventListener('click',()=>selectMotor(n));grid.appendChild(b);
- }
- document.getElementById('selectBtn').addEventListener('click',()=>selectMotor(Number(input.value)));
- input.addEventListener('input',()=>{input.value=input.value.replace(/[^0-9]/g,'').slice(0,2);if(input.value.length===2)selectMotor(Number(input.value));});
- input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();selectMotor(Number(input.value));}});
+ input.addEventListener('input',()=>{
+  input.value=input.value.replace(/[^0-9]/g,'').slice(0,2);
+  const raw=input.value;
+  if(raw.length===2) normalize();
+  else if(raw.length===1){
+   const n=Number(raw);
+   selection.textContent=n>=1?'Motor dipilih: '+String(n).padStart(2,'0'):'Nomor tidak valid. Gunakan 1 sampai 45.';
+  }else selection.textContent='Masukkan nomor motor 01 sampai 45.';
+ });
+ input.addEventListener('blur',normalize);
+ input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();normalize();input.blur();}});
  fetch('/api/status',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}).then(data=>{
   document.getElementById('controller').textContent=data.controller||'Status tidak tersedia';
   document.getElementById('serverState').textContent='Terhubung · '+(data.motorCount||45)+' motor terdaftar';
