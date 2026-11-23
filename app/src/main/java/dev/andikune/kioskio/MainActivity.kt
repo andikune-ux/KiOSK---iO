@@ -41,7 +41,7 @@ class MainActivity:ComponentActivity(){
    .setMessage(update.notes.ifBlank{"Versi baru tersedia."}.take(3000))
    .setNeutralButton("Skip"){_,_->UpdateChecker(this).skip(update.tag)}
    .setNegativeButton("Nanti",null)
-   .setPositiveButton("Update"){_,_->executor.execute{runCatching{UpdateChecker(this).download(update)}.onFailure{runOnUiThread{android.widget.Toast.makeText(this,it.message?: "Update gagal",android.widget.Toast.LENGTH_LONG).show()}}}}
+   .setPositiveButton("Update"){_,_->val progress=android.app.ProgressDialog(this).apply{setMessage("Mengunduh dan memverifikasi APK…");setCancelable(false);show()};executor.execute{val result=runCatching{UpdateChecker(this).download(update)};runOnUiThread{progress.dismiss();result.exceptionOrNull()?.let{android.widget.Toast.makeText(this,it.message?: "Update gagal",android.widget.Toast.LENGTH_LONG).show()}}}}
    .show()
  }
  override fun onDestroy(){executor.shutdown();super.onDestroy()}
@@ -65,6 +65,6 @@ class MainActivity:ComponentActivity(){
     packageManager.setComponentEnabledSetting(c,if(hide)PackageManager.COMPONENT_ENABLED_STATE_DISABLED else PackageManager.COMPONENT_ENABLED_STATE_ENABLED,PackageManager.DONT_KILL_APP)
    })}
   }
-  if(showCrash&&crash!=null)AlertDialog(onDismissRequest={showCrash=false},title={Text("Laporan crash sebelumnya")},text={Text(crash.take(5000))},confirmButton={TextButton(onClick={val cm=getSystemService(CLIPBOARD_SERVICE) as android.content.ClipboardManager;cm.setPrimaryClip(android.content.ClipData.newPlainText("Kioskio crash log",crash))}){Text("Salin Log")}},dismissButton={TextButton(onClick={showCrash=false}){Text("Kembali")}})
+  if(showCrash&&crash!=null)AlertDialog(onDismissRequest={showCrash=false},title={Text("Laporan crash sebelumnya")},text={Text(crash.take(5000))},confirmButton={TextButton(onClick={val cm=getSystemService(CLIPBOARD_SERVICE) as android.content.ClipboardManager;cm.setPrimaryClip(android.content.ClipData.newPlainText("Kioskio crash log",crash))}){Text("Salin Log")}},dismissButton={TextButton(onClick={CrashReporter(this@MainActivity).markViewed();showCrash=false}){Text("Kembali")}})
  }
 }
