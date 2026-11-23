@@ -6,7 +6,7 @@ Aplikasi Android untuk pemeliharaan dan pengendalian mesin vending dengan 45 mot
 - App: Kioskio
 - Application ID: `dev.andikune.kioskio`
 - UI: Kotlin + Jetpack Compose
-- Min SDK: 26
+- Min SDK: 23 (Android 6.0 Marshmallow)
 
 ## Status implementasi
 - [x] Fondasi proyek Android dan layar pemeliharaan awal.
