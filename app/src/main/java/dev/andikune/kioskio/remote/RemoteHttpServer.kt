@@ -81,7 +81,7 @@ button{font:inherit;cursor:pointer}
 .motor.selected{background:#e8f0ff;border:2px solid #3975d7;color:#174ea6}
 .test{width:100%;padding:13px;border:0;border-radius:12px;background:#aab2bf;color:#fff;font-weight:700;margin-top:12px}
 .notice{background:#fff7e6;border:1px solid #f5dfad;color:#79530a;padding:12px;border-radius:12px;font-size:13px;line-height:1.5}
-@media(min-width:560px){.grid{grid-template-columns:repeat(9,minmax(0,1fr))}}
+
 </style>
 </head>
 <body>
@@ -94,7 +94,7 @@ button{font:inherit;cursor:pointer}
 <button class="confirm" id="selectBtn" type="button">Pilih</button>
 </div>
 <div class="grid" id="motorGrid" aria-label="Daftar motor"></div>
-<p class="muted" id="selection">Belum ada motor dipilih.</p>
+<p class="muted" id="selection">Masukkan nomor motor 01 sampai 45.</p>
 <div class="notice">Kontrol fisik masih terkunci sampai papan pengendali dan protokol komunikasinya diverifikasi. Pemilihan nomor di halaman ini belum memutar motor.</div>
 <button class="test" type="button" disabled>Uji motor — belum tersedia</button>
 </section>
