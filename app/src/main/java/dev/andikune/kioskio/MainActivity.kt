@@ -9,9 +9,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -52,11 +49,19 @@ class MainActivity:ComponentActivity(){
    Text("Kioskio",fontSize=28.sp,fontWeight=FontWeight.Bold)
    Text("Panel pemeliharaan mesin • 45 motor",color=Color.Gray)
    Card{Column(Modifier.padding(14.dp)){Text("Controller: belum teridentifikasi",fontWeight=FontWeight.SemiBold);Text("Kontrol fisik motor terkunci sampai antarmuka controller diverifikasi.")}}
-   Text("Pilih motor",fontWeight=FontWeight.SemiBold)
-   LazyVerticalGrid(columns=GridCells.Fixed(5),modifier=Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(5.dp),horizontalArrangement=Arrangement.spacedBy(5.dp)){
-    items((1..45).toList()){n->OutlinedButton(onClick={motor=n.toString().padStart(2,'0')},contentPadding=PaddingValues(6.dp)){Text(n.toString().padStart(2,'0'))}}
-   }
-   OutlinedTextField(value=motor,onValueChange={motor=it.filter(Char::isDigit).take(2)},label={Text("Nomor motor 01–45")},keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Number),singleLine=true,modifier=Modifier.fillMaxWidth())
+   OutlinedTextField(
+    value=motor,
+    onValueChange={value->motor=value.filter(Char::isDigit).take(2)},
+    label={Text("Nomor motor 01–45")},
+    placeholder={Text("Contoh: 08")},
+    keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Number),
+    singleLine=true,
+    modifier=Modifier.fillMaxWidth()
+   )
+   Text(
+    if(motor.toIntOrNull() in 1..45) "Motor dipilih: ${motor.toInt().toString().padStart(2,'0')}" else "Masukkan nomor motor 01 sampai 45",
+    color=if(motor.toIntOrNull() in 1..45) MaterialTheme.colorScheme.primary else Color.Gray
+   )
    Text("Perintah rencana: 432° (360° + 20%).")
    Button(onClick={},enabled=false,modifier=Modifier.fillMaxWidth()){Text("Uji motor — controller belum tersedia")}
    Card{Column(Modifier.padding(14.dp)){Text("Dashboard LAN",fontWeight=FontWeight.SemiBold);Text("Server otomatis aktif • Port 14039");Text("http://"+(applicationContext.getSystemService(WIFI_SERVICE) as WifiManager).connectionInfo.ipAddress.let{Formatter.formatIpAddress(it)}+":14039")}}
