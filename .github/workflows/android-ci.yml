@@ -45,6 +45,7 @@ jobs:
           git add gradlew gradlew.bat gradle/wrapper/gradle-wrapper.jar gradle/wrapper/gradle-wrapper.properties
           if ! git diff --cached --quiet; then
             git commit -m "build: add Gradle 8.9 wrapper"
+            git pull --rebase origin main
             git push origin HEAD:main
           fi
 
