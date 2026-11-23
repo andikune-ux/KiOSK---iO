@@ -5,10 +5,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -97,7 +95,6 @@ private fun KioskioDashboard() {
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items((1..45).toList()) { number ->
-                val isSelected = selectedMotor == number
                 OutlinedButton(
                     onClick = {
                         selectedMotor = number
