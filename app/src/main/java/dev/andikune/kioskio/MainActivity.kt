@@ -9,6 +9,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -56,7 +57,9 @@ class MainActivity:ComponentActivity(){
     placeholder={Text("Contoh: 08")},
     keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Number),
     singleLine=true,
-    modifier=Modifier.fillMaxWidth()
+    modifier=Modifier.fillMaxWidth().onFocusChanged { focus ->
+     if (!focus.isFocused) motor = motor.toIntOrNull()?.takeIf { it in 1..45 }?.toString()?.padStart(2, '0') ?: motor
+    }
    )
    Text(
     if(motor.toIntOrNull() in 1..45) "Motor dipilih: ${motor.toInt().toString().padStart(2,'0')}" else "Masukkan nomor motor 01 sampai 45",
