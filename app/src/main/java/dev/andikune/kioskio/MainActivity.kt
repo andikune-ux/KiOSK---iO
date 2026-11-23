@@ -47,7 +47,7 @@ class MainActivity:ComponentActivity(){
  override fun onDestroy(){executor.shutdown();super.onDestroy()}
  @Composable private fun KioskioScreen(crash:String?){
   var motor by remember{mutableStateOf("08")};var showCrash by remember{mutableStateOf(crash!=null)}
-  var hideIcon by remember{mutableStateOf(packageManager.getComponentEnabledSetting(ComponentName(this@MainActivity,LauncherAlias::class.java))==PackageManager.COMPONENT_ENABLED_STATE_DISABLED)}
+  var hideIcon by remember{mutableStateOf(packageManager.getComponentEnabledSetting(ComponentName(this@MainActivity,packageName+".LauncherAlias"))==PackageManager.COMPONENT_ENABLED_STATE_DISABLED)}
   Column(Modifier.fillMaxSize().padding(18.dp),verticalArrangement=Arrangement.spacedBy(10.dp)){
    Text("Kioskio",fontSize=28.sp,fontWeight=FontWeight.Bold)
    Text("Panel pemeliharaan mesin • 45 motor",color=Color.Gray)
